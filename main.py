@@ -52,33 +52,9 @@ def help_command(message):
     
 def handle_user_input(message):
     chat_id = message.chat.id
-    print(chat_id)
+    # print(chat_id)
     user_input = message.text
     echo_all(message)  
-    
-    
-    
-    conn = sqlite3.connect('text_to_speech.db')
-
-    conn.execute('''CREATE TABLE users
-            (chat_id TEXT PRIMARY KEY     NOT NULL,
-            download_count   INT    NOT NULL
-            )''')
-
-
-    for 
-    conn.execute("INSERT INTO users (chat_id,download_count) \
-        VALUES ('chat_id1', 1 )")
-
-    
-    cursor = conn.execute("SELECT chat_id, download_count from users")
-    for row in cursor:
-        print ("chat_id = ", row[0])
-        print ("download_count = ", row[1]), "\n"
-
-
-    conn.commit()
-    conn.close()
 
 
 
@@ -115,17 +91,56 @@ def handle_user_input(message):
 #     bot.send_audio(chat_id=chat_id, audio=open('./voice.mp3', 'rb'))
 #     time.sleep(5) # Sleep for 8 seconds
 #     handle_start_help(message)
+
+    download_count = 1
+    conn = sqlite3.connect('text_to_speech.db')
+
+    # conn.execute('''CREATE TABLE users
+    #                 (chat_id TEXT PRIMARY KEY     NOT NULL,
+    #                 download_count   INT    NOT NULL
+    #                 )''')
+    # cursor = .cursor()
+    query = conn.execute('''SELECT * from users WHERE chat_id = {0}'''.format(chat_id)) 
+    # print(query.fetchall())
+    # cursor.(query)
+    print(query.fetchall())
+    index = 0
+    for index in query :
+        item = query[index]
+        index += 1
+        print(item)
+        for (chat_id , download_count) in cursor :
+            if item == chat_id :
+                download_count += 1
+                # print(download_count) 
+                conn.execute('''UPDATE download_count SET download_count = ? WHERE item = chat_id''')
+                print(download_count)
+            else :
+                conn.execute('''INSERT INTO users (chat_id, download_count) values (?, ?)''',
+                    (chat_id, download_count))
+                print(chat_id, download_count)
+        
+    conn.execute("INSERT INTO users (chat_id,download_count) \
+                VALUES ('chat_id1', 1 )")
+
+    for row in query:
+                print ("chat_id = ", row[0])
+                print ("download_count = ", row[1]), "\n"
+
+
+    conn.commit()
+    conn.close()           
+
+         
    
 
 def echo_all(message):
     bot.send_message(message.chat.id, "ممنون از پیام شما! فایل صوتی تا لحظاتی دیگر برای شما ارسال می شود.")
     
 
-            
-
-bot.polling() 
 
 
+bot.polling()
 if __name__ == '__main__':
     app = Application.builder().token(Token).build()   
     app.add_handler(CommandHandler('start', start_command))
